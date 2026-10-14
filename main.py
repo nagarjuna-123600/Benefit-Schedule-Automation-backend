@@ -42,9 +42,9 @@ app.include_router(benefits_router)
 app.include_router(search_router)
 
 
-@app.get("/health", tags=["Health"])
-def health():
-    return {
-        "status": "ok",
-        "service": "Benefit Schedule Automation API",
-    }
+# @app.get("/health", tags=["Health"])
+# def health():
+#     return {
+#         "status": "ok",
+#         "service": "Benefit Schedule Automation API",
+#     }
