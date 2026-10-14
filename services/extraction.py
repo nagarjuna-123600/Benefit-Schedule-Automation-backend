@@ -52,6 +52,7 @@ Return one JSON object with exactly this top-level shape:
 Rules:
 - Extract every distinct benefit described in the supplied text.
 - Do not merge unrelated benefits.
+- extract the numbers not any symbols before the limit values
 - Use the exact string "N/A" for missing or unsupported scalar values.
 - Do not invent coverage, amounts, units, or rules.
 - benefit_treatment must be "Base Benefit", "Major Medical",

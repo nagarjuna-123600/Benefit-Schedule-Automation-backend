@@ -2,9 +2,8 @@ from pathlib import Path
 from io import BytesIO
 from email import policy
 from email.parser import BytesParser
-import csv
 import io
-
+import pdfplumber
 SUPPORTED_EXTENSIONS = {
     ".pdf", ".xlsx", ".xlsm", ".xls", ".docx", ".eml", ".msg", ".txt", ".csv"
 }

@@ -23,7 +23,7 @@ def upload_and_extract(
     if extension not in SUPPORTED_EXTENSIONS:
         raise HTTPException(
             status_code=415,
-            detail=f"Unsupported file type '{extension}'. Supported: PDF, XLSX, XLSM, XLS, DOCX, EML, MSG, TXT, CSV.",
+            detail=f"Unsupported file type '{extension}'. Supported: PDF, XLSX, XLSM, XLS, DOCX, EML,TXT,",
         )
 
     original_bytes = file.file.read()
@@ -80,13 +80,32 @@ def get_document_details(document_id: int):
     return document
 
 @router.get("/{document_id}/download-original")
-def download_original(document_id: int):
+def download_original(
+    document_id: int,
+    inline: bool
+):
     document = get_document(document_id, include_original=True)
+
     if not document:
-        raise HTTPException(status_code=404, detail="Document not found.")
+        raise HTTPException(
+            status_code=404,
+            detail="Document not found.",
+        )
+
     original = document.pop("original_file")
+
+    disposition = "inline" if inline else "attachment"
+
     return Response(
         content=bytes(original),
-        media_type=document.get("content_type") or "application/octet-stream",
-        headers={"Content-Disposition": f'attachment; filename="{document["original_filename"]}"'},
+        media_type=(
+            document.get("content_type")
+            or "application/octet-stream"
+        ),
+        headers={
+            "Content-Disposition": (
+                f'{disposition}; '
+                f'filename="{document["original_filename"]}"'
+            )
+        },
     )

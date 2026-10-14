@@ -43,9 +43,9 @@ MAX_TEXT_CHARS = int(
 
 # Text chunking configuration
 CHUNK_SIZE = int(
-    os.getenv("CHUNK_SIZE", "3000")
+    os.getenv("CHUNK_SIZE", "6000")
 )
 
 CHUNK_OVERLAP = int(
-    os.getenv("CHUNK_OVERLAP", "200")
+    os.getenv("CHUNK_OVERLAP", "300")
 )
