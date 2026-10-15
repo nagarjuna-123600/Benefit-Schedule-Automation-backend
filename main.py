@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import init_db
-
+from routers.underwriting import router as underwriting_router
 from routers.documents import (
     router as documents_router,
     projects_router,
@@ -71,6 +71,7 @@ app.include_router(benefits_router)
 # Semantic document search
 app.include_router(search_router)
 
+app.include_router(underwriting_router)
 
 # =====================================================
 # 5. HEALTH CHECK
