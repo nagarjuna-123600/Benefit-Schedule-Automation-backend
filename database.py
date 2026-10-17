@@ -852,6 +852,7 @@ def get_document(
 # 12. LIST EXTRACTED BENEFITS
 # =====================================================
 
+
 def list_benefits(document_id):
 
     with get_connection() as conn:
@@ -871,6 +872,8 @@ def list_benefits(document_id):
                 deductibles,
                 copay_ucr,
                 benefit_treatment,
+                validation_status,
+                validation_reason,
                 other_attributes,
                 source_excerpt,
                 extraction_confidence,
@@ -886,7 +889,6 @@ def list_benefits(document_id):
             serialize_dates(dict(row))
             for row in rows
         ]
-
 
 # =====================================================
 # 13. LIST ALL PROJECTS
