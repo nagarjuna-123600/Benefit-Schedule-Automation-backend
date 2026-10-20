@@ -111,7 +111,7 @@ You extract structured insurance benefit schedule data
 for CANOPY.
 
 Use only evidence present in the supplied source text.
-
+extract the benefits from the uploaded document if and only if the uploaded document is related to insurance
 Return one JSON object with exactly this top-level shape:
 
 {
