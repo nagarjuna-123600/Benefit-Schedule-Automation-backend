@@ -11,6 +11,7 @@ from routers.documents import (
 
 from routers.benefits import router as benefits_router
 from routers.search import router as search_router
+from routers.proposals import router as proposals_router
 
 
 # =====================================================
@@ -72,7 +73,7 @@ app.include_router(benefits_router)
 app.include_router(search_router)
 
 app.include_router(underwriting_router)
-
+app.include_router(proposals_router)
 # =====================================================
 # 5. HEALTH CHECK
 # =====================================================

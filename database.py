@@ -48,28 +48,8 @@ CREATE TABLE IF NOT EXISTS extracted_benefits (
     other_attributes JSONB NOT NULL DEFAULT '{}'::jsonb,
     source_excerpt TEXT NOT NULL DEFAULT 'N/A',
     extraction_confidence TEXT NOT NULL DEFAULT 'N/A',
-    validation_status TEXT NOT NULL DEFAULT 'Unverified',
-    validation_reason TEXT NOT NULL DEFAULT '',
-    resolution_action TEXT,
-    resolution_notes TEXT,
-    resolved_by TEXT,
-    resolved_at TIMESTAMPTZ,
-    mapped_to_benefit TEXT,
-    added_by TEXT,
-    is_manually_added BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-
--- Add columns to existing installations without deleting existing data.
-ALTER TABLE extracted_benefits ADD COLUMN IF NOT EXISTS validation_status TEXT NOT NULL DEFAULT 'Unverified';
-ALTER TABLE extracted_benefits ADD COLUMN IF NOT EXISTS validation_reason TEXT NOT NULL DEFAULT '';
-ALTER TABLE extracted_benefits ADD COLUMN IF NOT EXISTS resolution_action TEXT;
-ALTER TABLE extracted_benefits ADD COLUMN IF NOT EXISTS resolution_notes TEXT;
-ALTER TABLE extracted_benefits ADD COLUMN IF NOT EXISTS resolved_by TEXT;
-ALTER TABLE extracted_benefits ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMPTZ;
-ALTER TABLE extracted_benefits ADD COLUMN IF NOT EXISTS mapped_to_benefit TEXT;
-ALTER TABLE extracted_benefits ADD COLUMN IF NOT EXISTS added_by TEXT;
-ALTER TABLE extracted_benefits ADD COLUMN IF NOT EXISTS is_manually_added BOOLEAN NOT NULL DEFAULT FALSE;
 
 CREATE TABLE IF NOT EXISTS document_chunks (
     id BIGSERIAL PRIMARY KEY,
@@ -253,22 +233,6 @@ def init_db():
             else:
                 project_id = conn.execute(
                     """
-<<<<<<< HEAD
-                    INSERT INTO extracted_benefits
-                    (document_id, benefit_name, benefit_category, limits, percentages,
-                     visits, deductibles, copay_ucr, benefit_treatment, other_attributes,
-                     source_excerpt, extraction_confidence, validation_status,
-                     validation_reason, added_by, is_manually_added)
-                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,'Unverified','',NULL,FALSE)
-                    """,
-                    (
-                        document_id, item.get("benefit_name", "N/A"), item.get("benefit_category", "N/A"),
-                        item.get("limits", "N/A"), item.get("percentages", "N/A"),
-                        item.get("visits", "N/A"), item.get("deductibles", "N/A"),
-                        item.get("copay_ucr", "N/A"), item.get("benefit_treatment", "N/A"),
-                        json.dumps(item.get("other_attributes") or {}, ensure_ascii=False),
-                        item.get("source_excerpt", "N/A"), item.get("extraction_confidence", "N/A"),
-=======
                     INSERT INTO projects (
                         client_name,
                         source_insurer,
@@ -285,7 +249,6 @@ def init_db():
                         assigned_underwriter,
                         created_at,
                         created_at,
->>>>>>> origin/dev
                     ),
                 ).fetchone()[0]
 
@@ -889,6 +852,7 @@ def get_document(
 # 12. LIST EXTRACTED BENEFITS
 # =====================================================
 
+
 def list_benefits(document_id):
 
     with get_connection() as conn:
@@ -897,15 +861,6 @@ def list_benefits(document_id):
 
         rows = conn.execute(
             """
-<<<<<<< HEAD
-            SELECT id, document_id, benefit_name, benefit_category, limits, percentages,
-                   visits, deductibles, copay_ucr, benefit_treatment, other_attributes,
-                   source_excerpt, extraction_confidence, validation_status,
-                   validation_reason, resolution_action, resolution_notes, resolved_by,
-                   resolved_at, mapped_to_benefit, added_by, is_manually_added, created_at
-            FROM extracted_benefits
-            WHERE document_id=%s
-=======
             SELECT
                 id,
                 document_id,
@@ -917,40 +872,23 @@ def list_benefits(document_id):
                 deductibles,
                 copay_ucr,
                 benefit_treatment,
+                validation_status,
+                validation_reason,
                 other_attributes,
                 source_excerpt,
                 extraction_confidence,
                 created_at
             FROM extracted_benefits
             WHERE document_id = %s
->>>>>>> origin/dev
             ORDER BY id
             """,
             (document_id,),
         ).fetchall()
-<<<<<<< HEAD
-        cols = ["id", "document_id", "benefit_name", "benefit_category", "limits",
-                "percentages", "visits", "deductibles", "copay_ucr", "benefit_treatment",
-                "other_attributes", "source_excerpt", "extraction_confidence",
-                "validation_status", "validation_reason", "resolution_action",
-                "resolution_notes", "resolved_by", "resolved_at", "mapped_to_benefit",
-                "added_by", "is_manually_added", "created_at"]
-        result = []
-        for row in rows:
-            item = dict(zip(cols, row))
-            for date_field in ("created_at", "resolved_at"):
-                if item[date_field]:
-                    item[date_field] = item[date_field].isoformat()
-            result.append(item)
-        return result
-=======
->>>>>>> origin/dev
 
         return [
             serialize_dates(dict(row))
             for row in rows
         ]
-
 
 # =====================================================
 # 13. LIST ALL PROJECTS

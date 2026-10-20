@@ -1,4 +1,5 @@
-
+from pydantic import BaseModel, Field
+# from database import update_document_description
 from pathlib import Path
 from urllib.parse import quote
 
@@ -68,6 +69,49 @@ def validate_project_details(
         )
 
     return values
+
+class DescriptionUpdate(BaseModel):
+    description: str = Field(
+        min_length=1,
+        max_length=5000,
+    )
+
+
+@router.put("/{document_id}/description")
+def update_description(
+    document_id: int,
+    payload: DescriptionUpdate,
+):
+    description = payload.description.strip()
+
+    if not description:
+        raise HTTPException(
+            status_code=422,
+            detail="Description cannot be empty.",
+        )
+
+    try:
+        result = update_document_description(document_id, description)
+
+        if result is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Document not found.",
+            )
+
+        return {
+            "message": "Description saved successfully.",
+            **result,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        print(f"Description update failed for document {document_id}: {exc}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to save document description.",
+        ) from exc
 
 
 def read_uploaded_file(file):
@@ -326,7 +370,7 @@ def upload_new_version(
 @router.get("")
 def list_all_documents():
     with get_connection() as conn:
-        rows = conn.execute(
+        cursor = conn.execute(
             """
             SELECT
                 id,
@@ -343,45 +387,18 @@ def list_all_documents():
                 created_at,
                 processed_at
             FROM source_documents
-            ORDER BY created_at DESC, id DESC
+            ORDER BY id DESC
             """
-        ).fetchall()
+        )
 
-    columns = [
-        "id",
-        "project_id",
-        "version_number",
-        "client_name",
-        "source_insurer",
-        "assigned_underwriter",
-        "original_filename",
-        "file_extension",
-        "file_size_bytes",
-        "processing_status",
-        "processing_error",
-        "created_at",
-        "processed_at",
-    ]
+        rows = cursor.fetchall()
 
-    documents = []
+        columns = [column.name for column in cursor.description]
 
-    for row in rows:
-        document = dict(zip(columns, row))
-
-        for field in ("created_at", "processed_at"):
-            if document[field]:
-                document[field] = (
-                    document[field].isoformat()
-                )
-
-        documents.append(document)
-
-    return {
-        "total": len(documents),
-        "documents": documents,
-    }
-
-
+        return [
+            dict(zip(columns, row))
+            for row in rows
+        ]
 # =====================================================
 # 6. FETCH DOCUMENT DETAILS AND BENEFITS
 # =====================================================
